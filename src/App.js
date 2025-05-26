@@ -1,40 +1,79 @@
-import logo from './logo.svg';
+//CSS
 import './App.css';
-import { useState } from 'react';
-import Title from './components/Title';
-import DetalhesCar from './components/DetalhesCar';
+
+//REACT
+import { useCallback, useEffect, useState } from 'react';
+
+//COMPONENTS
+import AppAulas from './components/AppAulas';
+import StartScreen from './components/StartScreen';
+import Game from './components/Game';
+import GameOver from './components/GameOver';
+
+//DATA
+import { wordsList } from './components/data/words';
+
+const stages = [
+  {id: 1, name: 'start'},
+  {id: 2, name: 'game'},
+  {id: 3, name: 'end'}
+];
 
 function App() {
+  const [gameStage, setGameStage] = useState(stages[0].name);
+  const [words] = useState(wordsList);
+  const [pickedWord, setPickedWord] = useState("");
+  const [pickedCategory, setPickedCategory] = useState("");
+  const [letters, setLetters] = useState("");
 
-  const colorTeste = true;
-  const [myStyle] = useState('teste');
-  const carros = [
-    {id: 1, modelo: 'Sandero', marca: 'Renault', km: 100},
-    {id: 2, modelo: 'Tracker', marca: 'Chevrolet', km: 350},
-    {id: 3, modelo: 'Sandero Stap Way', marca: 'Renault', km: 0}
-  ];
+  const pickWordAndCategory = () => {
+    const categories = Object.keys(words)
+    const category = categories[Math.floor(
+                        Math.random() * Object.keys(categories)
+                          .length)];
+      console.log(category);
+
+    const word = words[category][Math.floor(
+                        Math.random() * words[category]
+                          .length)];
+      console.log(word);
+
+    return { word, category }  
+  };    
+
+  //Iniciar jogo
+  const startGame = () => {
+    const { word, category } = pickWordAndCategory();
+    
+    //create am array of letters
+    let wordLetters = word.split("");
+    wordLetters = wordLetters.map((l) => l.toLowerCase()); 
+    
+    console.log(word, category);
+    console.log(wordLetters);
+    
+    setPickedWord(pickedWord);
+    setPickedCategory(pickedCategory);
+    setLetters(letters);
+
+    setGameStage(stages[1].name);
+  };
+
+  //process the letter input
+  const verifyLetter = () => {
+    setGameStage(stages[2].name);
+  };
+
+  //reiniciar o jogo
+  const retry = () => {
+    setGameStage(stages[0].name);
+  };
 
   return (
     <div className="App">
-      <h1> Teste </h1>
-      {/* CSS inline dinâmico com if ternário */}
-      <h2 style={colorTeste ? { color: 'green'} : {color: 'red' }}>Olá, Mundo!</h2>
-
-      <h2 style={ myStyle === 'teste' ? { color: 'blue', background: '#000'} : null }>Olá, Mundo!</h2>
-      
-      <h2 className={ colorTeste ? 'red-title' : 'title' }>
-        Este título vai ter classe dinâmica
-      </h2>
-      
-      <Title />
-    
-      <h1>Show de Carros</h1>
-      <div className='car_container'>
-        {carros.map((carro) => (
-            <DetalhesCar car={carro} />
-        ))} 
-      </div>
-   
+      {gameStage === "start" && <StartScreen iniciarGame={startGame}/>}
+      {gameStage === "game" && <Game verify={verifyLetter}/>}
+      {gameStage === "end" && <GameOver reiniciar={retry}/>}
     </div>
   );
 }
